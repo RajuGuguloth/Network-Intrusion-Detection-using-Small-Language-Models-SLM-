@@ -1,11 +1,11 @@
 # Network Intrusion Detection using Small Language Models (SLM)
 
-## 📌 Project Overview
+##  Project Overview
 This project explores a novel approach to cybersecurity: using **Generative AI (Small Language Models)** to detect malicious network traffic. Instead of treating network logs purely as numbers (like traditional Machine Learning), we convert them into natural language sentences and ask an AI model to "reason" about them.
 
 We compare this modern approach against a strong industry baseline (**Random Forest**) to understand the trade-offs between accuracy, speed, and explainability.
 
-## 🛠 Technology Stack & Rationale
+##  Technology Stack & Rationale
 
 ### 1. **Core AI Engine: Ollama + Mistral 7B**
 *   **What it is**: An open-source, locally hosted Large Language Model.
@@ -26,7 +26,7 @@ We compare this modern approach against a strong industry baseline (**Random For
 *   **Dataset**: **UNSW-NB15** is a modern cybersecurity dataset reflecting real-world attack vectors (Fuzzers, DoS, Exploits).
 *   **Preprocessing**: We stripped ID columns and sampled balanced datasets to ensure fair testing.
 
-## ⚙️ Architecture
+##  Architecture
 
 ```mermaid
 graph LR
@@ -45,7 +45,7 @@ The core innovation here is **Tabular-to-Text Serialization**.
 *   **Output**: *"Flow: The protocol is TCP using HTTP service with 40 destination packets..."*
 This bridging step allows the text-based AI to understand numerical network data.
 
-## 🚀 How to Run
+##  How to Run
 
 ### Prerequisites
 1.  **Python 3.10+**
@@ -71,14 +71,14 @@ Run the main evaluation pipeline:
 python3 main.py
 ```
 
-## 📊 Expected Results & Interpretation
+##  Expected Results & Interpretation
 The script runs two tests:
 1.  **Random Forest**: Likely ~95-99% accuracy. Fast (milliseconds).
 2.  **SLM (Mistral)**: Accuracy varies (70-95%). Slow (seconds).
 
 **Key Takeaway**: While SLMs are slower, they offer the potential for **Chain-of-Thought reasoning**—explaining *why* a flow is malicious, which traditional models cannot do.
 
-## ❓ FAQ
+##  FAQ
 *   **Why is it slow?**
     Generative AI generates token-by-token. A 7B parameter model requires significant computation.
 *   **Can we make it faster?**
