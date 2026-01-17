@@ -29,14 +29,10 @@ We compare this modern approach against a strong industry baseline (**Random For
 ##  Architecture
 
 ```mermaid
-graph LR
-    A[Network Logs<br>(CSV)] --> B(Serializer)
-    B -->|Text Prompt| C{AI Model}
-    C -->|Reasoning| D[Classification]
-    
-    subgraph "Hybrid Approach"
-    C -- Local API --> E[Ollama (Mistral)]
-    end
+graph TD
+    A[Network Logs CSV] --> B(Serializer<br>Structured → Text)
+    B --> C[Local SLM Analysis]
+    C --> D[Threat Classification<br>Benign / Malicious + Explanation]
 ```
 
 ### The "Serializer" Innovation
