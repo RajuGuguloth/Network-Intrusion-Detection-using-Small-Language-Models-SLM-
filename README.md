@@ -5,6 +5,23 @@ This project explores a novel approach to cybersecurity: using **Generative AI (
 
 We compare this modern approach against a strong industry baseline (**Random Forest**) to understand the trade-offs between accuracy, speed, and explainability.
 
+##  Project Structure
+```bash
+├── slm_baseline/          # [Phase 1] Text-Based Approach (Metadata -> English)
+│   ├── serializer.py      #   - Converts stats to "The source sent 0 bytes..."
+│   └── slm_client.py      #   - Client for Mistral 7B (Ollama)
+│
+├── slm_native/            # [Phase 2] Network-Native Approach (Raw Bytes -> Tokenizer)
+│   ├── tokenizer.py       #   - Custom Byte-Pair Encoding (BPE) for Hex
+│   └── model.py           #   - Nano-RoBERTa Transformer
+│
+├── data_loader.py         # Data preprocessing (UNSW-NB15)
+├── baseline_model.py      # Random Forest Baseline (Scikit-Learn)
+├── main.py                # Main execution entry point (Phase 1 Eval)
+├── compare_models.py      # Demonstration script: Text vs. Native Comparison
+└── experimental/          # Sandbox for R&D
+```
+
 ##  Technology Stack & Rationale
 
 ### 1. **Core AI Engine: Ollama + Mistral 7B**
@@ -26,20 +43,36 @@ We compare this modern approach against a strong industry baseline (**Random For
 *   **Dataset**: **UNSW-NB15** is a modern cybersecurity dataset reflecting real-world attack vectors (Fuzzers, DoS, Exploits).
 *   **Preprocessing**: We stripped ID columns and sampled balanced datasets to ensure fair testing.
 
-##  Architecture
+##  Architecture Evolution: Dual-Stack Approach
+
+This project implements two distinct architectural paradigms to demonstrate the evolution from standard LLM usage to domain-specific innovation.
+
+### Phase 1: Text-Based Baseline (`slm_baseline/`)
+*   **Method**: Uses the **Serializer** to translate network metadata into English sentences (e.g., *"The source sent 0 bytes"*).
+*   **Model**: Off-the-shelf LLMs (Mistral 7B via Ollama).
+*   **Pros**: Easy to implement, leverages existing pre-trained knowledge.
+*   **Cons**: Inefficient, trains on text (not network data), high latency.
+
+### Phase 2: Network-Native Innovation (`slm_native/`)
+*   **Method**: Uses a custom **Byte-Level Tokenizer** trained directly on raw packet payloads and headers.
+*   **Model**: A custom "Nano-RoBERTa" trained from scratch on network traffic.
+*   **Pros**: 
+    - **True SLM**: 100x smaller and faster than Mistral.
+    - **Domain Specific**: Learns the "language" of TCP/IP directly (hex patterns, shellcode).
+    - **Privacy**: No external text generation needed.
 
 ```mermaid
 graph TD
-    A[Network Logs CSV] --> B(Serializer<br>Structured → Text)
-    B --> C[Local SLM Analysis]
-    C --> D[Threat Classification<br>Benign / Malicious + Explanation]
+    subgraph Baseline [Phase 1: Text Baseline]
+    A1[CSV Data] --> B1(Serializer -> English)
+    B1 --> C1[Mistral 7B]
+    end
+    
+    subgraph Native [Phase 2: Network Native]
+    A2[Raw Bytes] --> B2(Byte Tokenizer)
+    B2 --> C2[Nano-RoBERTa]
+    end
 ```
-
-### The "Serializer" Innovation
-The core innovation here is **Tabular-to-Text Serialization**.
-*   **Input**: `proto=TCP, service=http, dpkts=40...`
-*   **Output**: *"Flow: The protocol is TCP using HTTP service with 40 destination packets..."*
-This bridging step allows the text-based AI to understand numerical network data.
 
 ##  How to Run
 

@@ -98,6 +98,31 @@ def load_and_preprocess(sample_size=1000, random_state=42):
     print(f"Could not balance perfectly. Returning random sample of {sample_size}.")
     return df.sample(n=min(len(df), sample_size), random_state=random_state).reset_index(drop=True)
 
+def get_data_splits(df, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, random_state=42):
+    """
+    Splits the dataframe into Train, Validation, and Test sets.
+    """
+    # First split: Train vs (Val + Test)
+    # If val_ratio + test_ratio == 0, return all train
+    remaining_ratio = val_ratio + test_ratio
+    if remaining_ratio <= 0:
+        return df, pd.DataFrame(), pd.DataFrame()
+        
+    train_df, remaining_df = train_test_split(df, test_size=remaining_ratio, random_state=random_state)
+    
+    # Second split: Val vs Test
+    # The 'remaining_df' represents (val_ratio + test_ratio) of the original.
+    # We need to split this relative to its size.
+    # relative_test_size = test_ratio / (val_ratio + test_ratio)
+    
+    relative_test_size = test_ratio / remaining_ratio
+    
+    val_df, test_df = train_test_split(remaining_df, test_size=relative_test_size, random_state=random_state)
+    
+    return train_df, val_df, test_df
+
 if __name__ == "__main__":
     df = load_and_preprocess()
     print(df.head())
+    tr, val, te = get_data_splits(df)
+    print(f"Splits: {len(tr)}, {len(val)}, {len(te)}")

@@ -1,0 +1,224 @@
+
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Project Documentation</title>
+        
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; line-height: 1.6; max-width: 800px; margin: auto; padding: 20px; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; page-break-before: always; }
+        h1:first-of-type { page-break-before: avoidance; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .page-break { page-break-after: always; }
+    </style>
+    
+    </head>
+    <body>
+        <h1 id="project-documentation">Project Documentation</h1>
+<p>Generated from Workspace Artifacts.</p>
+<h1 id="presentation-notes">Presentation Notes</h1>
+<h1 id="project-presentation-script-slm-based-network-intrusion-detection">Project Presentation Script: SLM-Based Network Intrusion Detection</h1>
+<p><strong>Goal:</strong> Explain the project naturally to a mentor or team.
+<strong>Time:</strong> ~5-10 Minutes.</p>
+<hr />
+<h2 id="1-the-hook-the-problem">1. The "Hook" (The Problem)</h2>
+<p>"Hi everyone. We all know that detecting network attacks is critical. Traditionally, we use tools like <strong>Random Forest</strong> or <strong>Deep Learning</strong>. They are great at math—they look at numbers like 'Packet Size = 500' and say 'Malicious'.</p>
+<p><strong>But they have a problem: They are 'Black Boxes'.</strong>
+They can't tell us <em>why</em> something is an attack. They just give us a probability score. Also, they struggle to adapt to <em>new</em> types of attacks they haven't seen before."</p>
+<h2 id="2-the-solution-the-big-idea">2. The Solution (The "Big Idea")</h2>
+<p>"So, for this project, I wanted to try something cutting-edge. I asked: <strong>'Can we treat network logs like a language?'</strong></p>
+<p>If a cyber attack tells a story—(e.g., 'A user tried to connect to port 80 repeatedly')—can we use a <strong>Large Language Model (LLM)</strong> to read that story and identify the threat?</p>
+<p>That's what I built: An Intrusion Detection System that uses <strong>Generative AI</strong> to reason about security."</p>
+<h2 id="3-the-architecture-how-it-works">3. The Architecture (How it works)</h2>
+<p>"Let me walk you through the flow of data in my system:"</p>
+<ol>
+<li><strong>The Raw Data</strong>: "We take standard network logs (from the UNSW-NB15 dataset). These are rows of numbers."</li>
+<li><strong>The Translator (Critical Step!)</strong>: "AI models don't speak 'CSV'. So I built a <strong>Serializer</strong>. It converts the raw numbers into a natural English sentence.<ul>
+<li><em>Input:</em> <code>Proto: TCP, Dport: 80, State: FIN</code></li>
+<li><em>Output:</em> 'A TCP connection on port 80 attempting to terminate...'
+This turns a math problem into a reading comprehension problem."</li>
+</ul>
+</li>
+<li><strong>The Brain (Local SLM)</strong>: "We feed this sentence into a <strong>Small Language Model</strong>."</li>
+</ol>
+<h2 id="4-technology-decisions-anticipating-questions">4. Technology Decisions (Anticipating Questions)</h2>
+<p>"Now, you might ask why I chose this specific stack:"</p>
+<ul>
+<li>
+<p><strong>Why Ollama &amp; Mistral 7B?</strong></p>
+<ul>
+<li>"Privacy is number one. We cannot send private network logs to ChatGPT or the cloud. It's a security risk."</li>
+<li>"Ollama allows me to run the model <strong>locally on my secure machine</strong>. No data leaves the network."</li>
+<li>"I chose <strong>Mistral 7B</strong> because it's a 'Small' Language Model. It's efficient enough to run on a laptop but smart enough to understand attack patterns."</li>
+</ul>
+</li>
+<li>
+<p><strong>Why comparing with Random Forest?</strong></p>
+<ul>
+<li>"I didn't just want to use AI for the sake of it. I kept a <strong>Random Forest</strong> model as a baseline benchmark. I compare my fancy AI against the industry standard to see the trade-offs."</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-the-results-honest-analysis">5. The Results (Honest Analysis)</h2>
+<p>"Here is what I found:"
+*   <strong>Random Forest</strong> is incredibly fast and accurate (95%+), but it gives zero explanation.
+*   <strong>The SLM (Mistral)</strong> varies in accuracy (70-90%) and is slower, <strong>BUT</strong> it provides one massive advantage: <strong>Explainability</strong>.
+    *   It can output: <em>'This looks malicious because of the high volume of small packets to a closed port, reminiscent of a Fuzzing attack.'</em></p>
+<h2 id="6-closing-future-scope">6. Closing / Future Scope</h2>
+<p>"In conclusion, this project proves that Generative AI <em>can</em> understand network traffic.
+Moving forward, the ideal real-world system would be a <strong>Hybrid</strong>:
+*   Use the fast Random Forest to filter 99% of traffic.
+*   Send the confusing, edge-case alerts to the SLM for a deep, human-readable analysis."</p>
+<div class='page-break'></div>
+
+<h1 id="network-slm-design">Network Slm Design</h1>
+<h1 id="design-custom-network-native-slm">Design: Custom Network-Native SLM</h1>
+<p><strong>Goal:</strong> Build and train a Small Language Model (SLM) <em>specifically</em> on network logs/packets, rather than using a pre-trained English model (Mistral).</p>
+<h2 id="1-the-core-concept-packet-language">1. The Core Concept: "Packet Language"</h2>
+<p>Instead of treating network traffic as "English text", we treat it as a distinct language with its own grammar.
+*   <strong>English:</strong> Subject -&gt; Verb -&gt; Object ("The user sent a packet")
+*   <strong>Network:</strong> Header -&gt; Protocol -&gt; Payload (<code>IP:Src</code> -&gt; <code>TCP:Port</code> -&gt; <code>0xDE 0xAD...</code>)</p>
+<p>We can train a <strong>Transformer (Decoder-only or Encoder-only)</strong> from scratch (or fine-tune) to learn this grammar.</p>
+<h2 id="2-feature-engineering-tokenization">2. Feature Engineering &amp; Tokenization</h2>
+<p>How do we feed raw bytes/logs into a Transformer?</p>
+<h3 id="a-the-vocabulary-tokenization">A. The Vocabulary (Tokenization)</h3>
+<p>We cannot use standard English tokenizers (Tiktoken/SentencePiece) efficiently because they are optimized for words like "apple" or "philosophy".</p>
+<p><strong>Strategy: Byte-Level BPE (Byte Pair Encoding)</strong>
+1.  <strong>Hex Tokens:</strong> Treat every byte (00-FF) as a potential token.
+    *   vocab: <code>[00, 01, ... FF, &lt;PAD&gt;, &lt;EOS&gt;, &lt;MASK&gt;]</code>
+2.  <strong>Structural Tokens:</strong> Add special tokens for log structure.
+    *   vocab: <code>[&lt;SRC_IP&gt;, &lt;DST_IP&gt;, &lt;PORT&gt;, &lt;PROTO_TCP&gt;, &lt;PROTO_UDP&gt;]</code></p>
+<h3 id="b-input-embedding-the-vector">B. Input Embedding (The "Vector")</h3>
+<p>Each log line is converted into a sequence of vector embeddings.
+*   <strong>Log:</strong> <code>192.168.1.1 -&gt; 80 [SYN]</code>
+*   <strong>Tokens:</strong> <code>[&lt;SRC_IP&gt;, 192, 168, 1, 1, &lt;DST_PORT&gt;, 80, &lt;FLAG&gt;, SYN]</code>
+*   <strong>Vector:</strong> A 512-dimensional vector identifying <em>what</em> the token is (Content) + <em>where</em> it is (Position).</p>
+<h2 id="3-model-parameters-interpretation">3. Model Parameters &amp; Interpretation</h2>
+<p>To build this "Network SLM", you would define these hyperparameters:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Recommended Value</th>
+<th style="text-align: left;">Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Vocab Size</strong></td>
+<td style="text-align: left;">~50,000</td>
+<td style="text-align: left;">Enough for all IPs, Ports, and common Hex sequences.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Context Window</strong></td>
+<td style="text-align: left;">2048 or 4096</td>
+<td style="text-align: left;">How many packets/bytes the model looks at at once.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Embedding Dim</strong></td>
+<td style="text-align: left;">768 (Small)</td>
+<td style="text-align: left;">Size of the internal vector representation.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Layers (Depth)</strong></td>
+<td style="text-align: left;">6 - 12</td>
+<td style="text-align: left;">Less deep than GPT-4. We need speed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Heads</strong></td>
+<td style="text-align: left;">8 - 12</td>
+<td style="text-align: left;">"Attention Heads" focus on different things (Head 1 looks at IPs, Head 2 looks at Ports).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-how-it-understands-data-self-attention">4. How It "Understands" Data (Self-Attention)</h2>
+<p>The magic happens in the <strong>Self-Attention Mechanism</strong>.
+The model learns relationships without being explicitly told rules.</p>
+<ul>
+<li><strong>Example:</strong> It sees millions of sequences like:
+    <code>[&lt;SRC_IP&gt;, X, &lt;DST_PORT&gt;, 443]</code> -&gt; <code>[&lt;FLAG&gt;, SYN]</code></li>
+<li><strong>What it learns:</strong> "When I see Port 443, the next meaningful thing is usually a TLS Handshake."</li>
+</ul>
+<p><strong>Anomaly Detection (The Outcome):</strong>
+If it sees:
+<code>[&lt;SRC_IP&gt;, X, &lt;DST_PORT&gt;, 443]</code> -&gt; <code>[&lt;PAYLOAD&gt;, 0xFF 0xFF 0xFF]</code> (Non-TLS garbage)
+The model's "Perplexity" (Surprise Score) spikes.
+*   <em>Model thinks:</em> "I expected a ClientHello. I saw garbage. This is highly probable to be an attack."</p>
+<h2 id="5-training-objective">5. Training Objective</h2>
+<p>You don't train it to "classify" immediately. You train it with <strong>Masked Language Modeling (MLM)</strong> (like BERT) or <strong>Next Token Prediction</strong> (like GPT).</p>
+<ul>
+<li><strong>Task:</strong> <code>192.168.1.5 connected to port [MASK]</code></li>
+<li><strong>Model Guesses:</strong> <code>80</code> (90%), <code>443</code> (5%), <code>9999</code> (1%).</li>
+<li><strong>Reality:</strong> <code>9999</code></li>
+<li><strong>Loss:</strong> High. Model updates weights. "Okay, connecting to 9999 is rare/weird."</li>
+</ul>
+<h2 id="6-architecture-diagram">6. Architecture Diagram</h2>
+<pre><code class="language-mermaid">graph LR
+    A[Raw Network PCAP/Log] --&gt; B(Custom Tokenizer&lt;br&gt;Byte-Level + IP/Port Special Tokens)
+    B --&gt; C[Embedding Layer]
+    C --&gt; D[Transformer Block 1&lt;br&gt;Self-Attention]
+    D --&gt; E[Transformer Block 2...N]
+    E --&gt; F[Output Head]
+    F --&gt; G{Training Mode?}
+    G -- Yes --&gt; H[Predict Next Token / Mask&lt;br&gt;(Self-Supervised)]
+    G -- No --&gt; I[Classification Head&lt;br&gt;Benign/Malicious]
+</code></pre>
+<div class='page-break'></div>
+
+<h1 id="implementation-plan">Implementation Plan</h1>
+<h1 id="implementation-plan-enhancing-mistral-7b-ids">Implementation Plan: Enhancing Mistral 7B IDS</h1>
+<p><strong>Goal:</strong> Improve the robustness, usability, and reasoning capability of the current SLM-based Intrusion Detection System.</p>
+<h2 id="user-review-required">User Review Required</h2>
+<blockquote>
+<p>[!IMPORTANT]
+<strong>Data Size Warning:</strong> Increasing the sample size significantly will slow down execution as local LLM inference is time-consuming. We will add a CLI argument to control this.</p>
+</blockquote>
+<h2 id="proposed-changes">Proposed Changes</h2>
+<h3 id="1-enhanced-data-management-data_loaderpy-mainpy">1. Enhanced Data Management (<code>data_loader.py</code> &amp; <code>main.py</code>)</h3>
+<ul>
+<li><strong>Action:</strong> Refactor <code>load_and_preprocess</code> and main logic to support a <strong>3-way split</strong>: Train (for few-shot examples), Validation (opt), and Test (for evaluation).</li>
+<li><strong>Split Ratio:</strong> Default to 70% Train, 15% Validation, 15% Test.</li>
+</ul>
+<h3 id="2-chain-of-thought-cot-serializer-serializerpy">2. Chain-of-Thought (CoT) Serializer (<code>serializer.py</code>)</h3>
+<ul>
+<li><strong>Action:</strong> Modify <code>format_few_shot_prompt</code> to include a <em>reasoning</em> step in the examples.</li>
+<li><strong>Current:</strong> "Flow: ... Label: malicious"</li>
+<li><strong>New:</strong> "Flow: ... Reasoning: The high volume of small UDP packets to distinct ports suggests a scanning attempt. Label: malicious"</li>
+<li><strong>Benefit:</strong> Forces the model to "think" before answering, improving accuracy.</li>
+</ul>
+<h3 id="3-cli-configuration-mainpy">3. CLI Configuration (<code>main.py</code>)</h3>
+<ul>
+<li><strong>Action:</strong> Add <code>argparse</code> to support:<ul>
+<li><code>--sample_size</code>: Default 50 (up from 20)</li>
+<li><code>--shots</code>: Default 3</li>
+<li><code>--model</code>: Default "mistral"</li>
+<li><code>--use_cot</code>: Boolean flag to enable/disable Chain of Thought</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-robust-client-slm_clientpy">4. Robust Client (<code>slm_client.py</code>)</h3>
+<ul>
+<li><strong>Action:</strong> Add simple retry logic for connection errors and better parsing for the CoT output format (extracting label from the end).</li>
+</ul>
+<h2 id="verification-plan">Verification Plan</h2>
+<h3 id="automated-tests">Automated Tests</h3>
+<ol>
+<li><strong>Dry Run:</strong>
+    <code>bash
+    python3 main.py --sample_size 10 --use_cot</code>
+    <em>Expectation:</em> Runs without error, outputs metrics.</li>
+<li><strong>Verify CoT:</strong>
+    Use <code>debug</code> print validation to ensure the prompt actually contains "Reasoning:" fields.</li>
+</ol>
+<h3 id="manual-verification">Manual Verification</h3>
+<ul>
+<li>Run <code>python3 main.py</code> and observe the "Explanation" quality in the console output (we will add a print for the first few predictions).</li>
+</ul>
+<div class='page-break'></div>
+    </body>
+    </html>
+    
